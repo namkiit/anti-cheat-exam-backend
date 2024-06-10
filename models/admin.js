@@ -1,15 +1,20 @@
 const mongoose = require("mongoose");
 
-const { ObjectId } = mongoose;
+// const { ObjectId } = mongoose;
 
 const adminSchema = new mongoose.Schema({
-  name: {
+  _id: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  fname: {
     type: String,
     required: true,
     maxlength: 32,
     trim: true,
   },
-  lastName: {
+  lname: {
     type: String,
     maxlength: 32,
     trim: true,
@@ -18,8 +23,13 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  email: {
+    type: String,
+    required: true,
+    trim: true,
+  }
 });
 
-const Admin = mongoose.model("Admin", studentSchema);
+const Admin = mongoose.model("Admin", adminSchema);
 
 module.exports = Admin;

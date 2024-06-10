@@ -14,6 +14,6 @@ const submittedExamSchema = new mongoose.Schema(
   { strict: false }
 );
 
-const SubmittedExam = mongoose.model("SubmittedExam", studentSchema);
+const SubmittedExam = mongoose.model("SubmittedExam", submittedExamSchema);
 
 module.exports = SubmittedExam;
