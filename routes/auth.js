@@ -3,8 +3,9 @@ const { check, validationResult } = require("express-validator");
 
 const router = express.Router();
 
-const { login } = require("../controllers/auth");
+const { login, loginAdmin } = require("../controllers/auth");
 
 router.post("/login", login);
+router.post("/dashboard/login", loginAdmin);
 
 module.exports = router;

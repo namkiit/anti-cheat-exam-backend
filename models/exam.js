@@ -29,7 +29,7 @@ const examSchema = new mongoose.Schema({
     required: true,
   },
   questions: {
-    type: QuestionSchema,
+    type: [QuestionSchema],
     required: true,
   },
   questionCount: {

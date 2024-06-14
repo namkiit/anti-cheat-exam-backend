@@ -3,6 +3,7 @@ const { check, validationResult } = require("express-validator");
 const expressJwt = require("express-jwt");
 const jwt = require("jsonwebtoken");
 const Student = require("../models/student");
+const Admin = require("../models/admin");
 
 exports.login = (req, res) => {
   const errors = validationResult(req);
@@ -47,6 +48,48 @@ exports.isAuthenticated = (req, res, next) => {
 
   if (!isAuthenticated) {
     return handleError(res, "Access denied, please login!", 403);
+  }
+
+  next();
+};
+
+exports.loginAdmin = (req, res) => {
+  const errors = validationResult(req);
+  const { id, password } = req.body;
+
+  if (!errors.isEmpty()) {
+    return res.json({
+      err: errors.errors[0].msg,
+    });
+  }
+
+  Admin.findById(id, (err, admin) => {
+    if (err) return handleError(res, "Database error, please try again!", 400);
+
+    if (!admin) return handleError(res, "Admin does not exist!", 400);
+
+    if (!admin.authenticate(password))
+      return handleError(res, "Incorrect username or password!", 401);
+
+    const { _id, fullname, email } = admin;
+
+    // TODO: Set expiry to 1d
+    const token = jwt.sign({ id: _id }, process.env.JWT_SECRET, {
+      algorithm: "HS256",
+    });
+
+    return res.json({ id: _id, fullname, email });
+  });
+};
+
+exports.isAdmin = (req, res, next) => {
+  // Consistent "id"
+
+  const isAdmin =
+    req.admin && req.auth && req.admin._id === req.auth.id;
+
+  if (!isAdmin) {
+    return handleError(res, "Access denied, please login with admin account!", 403);
   }
 
   next();
