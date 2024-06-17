@@ -72,7 +72,48 @@ exports.createStudent = (req, res) => {
 };
 
 exports.updateStudent = (req, res) => {
-}
+  const { _id, fname, lname, password, assignedExams } = req.body;
+
+  if (!_id || !fname || !password) {
+    return handleError(res, "ID, First Name, and Password are required fields.", 400);
+  }
+
+  const updatedData = {
+    fname,
+    lname,
+    password,
+    assignedExams
+  };
+
+  Student.findByIdAndUpdate(_id, updatedData, { new: true }, (err, student) => {
+    if (err) {
+      return handleError(res, "Error updating Student, please try again.", 400);
+    }
+
+    if (!student) {
+      return handleError(res, "Student not found.", 404);
+    }
+
+    return handleSuccess(res, student, "Student updated successfully!");
+  });
+};
 
 exports.deleteStudent = (req, res) => {
-}
+  const _id = req.params.id
+
+  if (!_id) {
+    return handleError(res, "ID is a required field.", 400);
+  }
+
+  Student.findByIdAndDelete(_id, (err, student) => {
+    if (err) {
+      return handleError(res, "Error deleting Student, please try again.", 400);
+    }
+
+    if (!student) {
+      return handleError(res, "Student not found.", 404);
+    }
+
+    return handleSuccess(res, null, "Student deleted successfully!");
+  });
+};

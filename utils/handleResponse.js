@@ -1,11 +1,14 @@
-exports.handleError = (res, err, code) => {
-  return res.status(code).json({
-    err: err,
+exports.handleError = (res, message, statusCode = 500) => {
+  return res.status(statusCode).json({
+    status: "error",
+    message
   });
 };
 
-exports.handleSuccess = (res, msg) => {
-  return res.json({
-    msg: msg,
+exports.handleSuccess = (res, data, message = "Success") => {
+  return res.status(200).json({
+    status: "success",
+    message,
+    data
   });
 };

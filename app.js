@@ -8,6 +8,7 @@ const cors = require("cors");
 
 const authRoutes = require("./routes/auth");
 const examRoutes = require("./routes/exam");
+const questionRoutes = require("./routes/question");
 const studentRoutes = require("./routes/student");
 
 const PORT = process.env.PORT || 8000;
@@ -38,6 +39,7 @@ app.get("/api/hello", (req, res) => {
 
 app.use("/api", authRoutes);
 app.use("/api", examRoutes);
+app.use("/api", questionRoutes);
 app.use("/api", studentRoutes);
 
 app.listen(PORT, () => {

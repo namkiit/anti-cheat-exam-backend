@@ -7,7 +7,6 @@ const submittedExamSchema = new mongoose.Schema(
     examId: {
       type: String,
       required: true,
-      maxlength: 32,
       trim: true,
     },
   },

@@ -4,14 +4,17 @@ const { isSignedIn, isAuthenticated } = require("../controllers/auth");
 
 const router = express.Router();
 
-const { getStudentByID, submitExam, getAllStudents, createStudent } = require("../controllers/student");
+const { getStudentByID, submitExam, getAllStudents, createStudent, updateStudent, deleteStudent } = require("../controllers/student");
 
 router.param("studentId", getStudentByID);
 
 router.post("/submitExam/:studentId", isSignedIn, isAuthenticated, submitExam);
 
-router.post('/students/create', createStudent);
-
 router.get("/students", getAllStudents);
+
+router.post('/student/create', createStudent);
+router.post('/student/update', updateStudent);
+
+router.delete('/student/:id', deleteStudent);
 
 module.exports = router;
