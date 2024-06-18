@@ -1,4 +1,5 @@
-const { Question } = require("../models/question");
+const Question = require("../models/question");
+const { handleError, handleSuccess } = require("../utils/handleResponse");
 
 exports.getAllQuestions = (req, res) => {
     Question.find()
@@ -15,8 +16,8 @@ exports.getAllQuestions = (req, res) => {
 exports.createQuestion = (req, res) => {
     const { _id, title, type, answers, correctAnswer } = req.body;
 
-    if (!_id || !fname || !password) {
-        return handleError(res, "ID, First Name, and Password are required fields.", 400);
+    if (!_id || !title || !type || !answers || !correctAnswer) {
+        return handleError(res, "Not receiving required fields in payload.", 400);
     }
 
     const newQuestion = new Question({
@@ -39,8 +40,8 @@ exports.createQuestion = (req, res) => {
 exports.updateQuestion = (req, res) => {
     const { _id, title, type, answers, correctAnswer } = req.body;
 
-    if (!_id || !fname || !password) {
-        return handleError(res, "ID, Title, and Options are required fields.", 400);
+    if (!_id || !title || !type || !answers || !correctAnswer) {
+        return handleError(res, "Not receiving required fields in payload.", 400);
     }
 
     const updatedData = {

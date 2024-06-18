@@ -15,7 +15,7 @@ const QuestionSchema = mongoose.Schema({
     required: true,
   },
   answers: {
-    type: Map,
+    type: Array,
     required: true,
   },
   correctAnswer: {
@@ -26,4 +26,4 @@ const QuestionSchema = mongoose.Schema({
 
 const Question = mongoose.model("Question", QuestionSchema);
 
-module.exports = { QuestionSchema, Question };
+module.exports = Question;

@@ -51,7 +51,6 @@ exports.getAllExams = (req, res) => {
 
       exams.forEach(exam => {
         exam.answerKeys = null; // Remove answer keys & questions for security reasons
-        exam.questions = null;
       });
 
       return res.json(exams);
@@ -59,11 +58,63 @@ exports.getAllExams = (req, res) => {
 };
 
 exports.createExam = (req, res) => {
-  const exam = new Exam({ ...req.body });
+  const { _id, name, startDate, endDate, duration, questions } = req.body;
 
-  exam.save().then((exam) => {
-    if (!exam) handleError(res, "Error creating Exam!");
+  if (!questions || !Array.isArray(questions) || questions.length === 0) {
+    return handleError(res, "Questions must be a non-empty array.", 400);
+  }
 
-    return res.json(exam);
+  const newExam = new Exam({
+    _id,
+    name,
+    startDate,
+    endDate,
+    duration,
+    questions,
+    questionCount: questions.length
+  });
+
+  newExam.save((err, exam) => {
+    if (err) {
+      return handleError(res, "Failed to create exam, DB Error.", 500);
+    }
+    return handleSuccess(res, "Exam created successfully!", 201, exam);
   });
 };
+
+exports.updateExam = (req, res) => {
+  const { id } = req.params;
+  const { name, startDate, endDate, duration, questions } = req.body;
+
+  const updateFields = { name, startDate, endDate, duration };
+  if (questions && Array.isArray(questions)) {
+    updateFields.questions = questions;
+    updateFields.questionCount = questions.length;
+  }
+
+  Exam.findByIdAndUpdate(id, { $set: updateFields }, { new: true }, (err, exam) => {
+    if (err) {
+      return handleError(res, "Failed to update exam, DB Error.", 500);
+    }
+    if (!exam) {
+      return handleError(res, "Exam not found.", 404);
+    }
+    return handleSuccess(res, "Exam updated successfully!", 200, exam);
+  });
+};
+
+
+exports.deleteExam = (req, res) => {
+  const { id } = req.params;
+
+  Exam.findByIdAndRemove(id, (err, exam) => {
+    if (err) {
+      return handleError(res, "Failed to delete exam, DB Error.", 500);
+    }
+    if (!exam) {
+      return handleError(res, "Exam not found.", 404);
+    }
+    return handleSuccess(res, "Exam deleted successfully!", 200, exam);
+  });
+};
+
