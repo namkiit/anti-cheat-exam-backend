@@ -26,6 +26,12 @@ const examSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  status: {
+    type: String,
+    required: true,
+    default: "open",
+    enum: ["open", "closed"],
+  },
   questions: {
     type: Array,
     required: true,

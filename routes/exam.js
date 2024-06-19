@@ -10,6 +10,8 @@ const {
   getAllExams,
   getAssignedExamList,
   createExam,
+  updateExam,
+  deleteExam,
 } = require("../controllers/exam");
 
 const { getStudentByID } = require("../controllers/student");
@@ -30,6 +32,8 @@ router.get("/exams", getAllExams)
 router.get('/exams/:examId/', getExam)
 
 // TODO: Add isAdmin middleware
-router.post("/createExam", isSignedIn, isAuthenticated, createExam);
+router.post("/exam/create", createExam);
+router.post("/exam/update", updateExam);
+router.delete("/exam/:id", deleteExam);
 
 module.exports = router;
