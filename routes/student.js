@@ -4,13 +4,13 @@ const { isSignedIn, isAuthenticated } = require("../controllers/auth");
 
 const router = express.Router();
 
-const { getStudentByID, submitExam, getAllStudents, createStudent, updateStudent, deleteStudent } = require("../controllers/student");
+const { getStudentByID, submitExam, getAllStudents, createStudent, updateStudent, deleteStudent, findStudent } = require("../controllers/student");
 
 router.param("studentId", getStudentByID);
-
 router.post("/submitExam/:studentId", isSignedIn, isAuthenticated, submitExam);
 
 router.get("/students", getAllStudents);
+router.get("/findStudent/:searchString", findStudent);
 
 router.post('/student/create', createStudent);
 router.post('/student/update', updateStudent);

@@ -136,3 +136,22 @@ exports.deleteExam = (req, res) => {
   });
 };
 
+exports.findExam = async (req, res) => {
+  try {
+    const searchString = req.params.searchString;
+    const searchRegex = new RegExp(searchString, 'i'); // Create a case-insensitive regex from the search string
+
+    // Find exams by ID or name using the regex
+    const exams = await Exam.find({
+      $or: [
+        { _id: { $regex: searchRegex } },
+        { name: { $regex: searchRegex } }
+      ]
+    });
+
+    return handleSuccess(res, exams, "Exams found successfully!");
+  } catch (err) {
+    console.error(err);
+    return handleError(res, "Error finding Exam.", 500);
+  }
+};

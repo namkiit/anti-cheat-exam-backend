@@ -12,6 +12,7 @@ const {
   createExam,
   updateExam,
   deleteExam,
+  findExam,
 } = require("../controllers/exam");
 
 const { getStudentByID } = require("../controllers/student");
@@ -32,6 +33,7 @@ router.get("/exams", getAllExams)
 router.get('/exams/:examId/', getExam)
 
 // TODO: Add isAdmin middleware
+router.get("/findExam/:searchString", findExam);
 router.post("/exam/create", createExam);
 router.post("/exam/update", updateExam);
 router.delete("/exam/:id", deleteExam);

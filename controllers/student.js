@@ -20,14 +20,26 @@ exports.submitExam = async (req, res) => {
       { $pull: { assignedExams: { examId: examId } } }
     );
 
-    // Update the submitted exams for the student
-    const updatedStudent = await Student.findOneAndUpdate(
+    await Student.updateOne(
       { _id: studentId },
-      { $set: { [`submittedExams.${examId}`]: answers } },
-      { new: true, runValidators: true }
+      { $pull: { assignedExams: { examId: examId } } }
     );
 
-    res.json(updatedStudent.submittedExams);
+    // Check if the examId already exists in submittedExams
+    const student = await Student.findById(studentId);
+    const existingExamIndex = student.submittedExams.findIndex(exam => exam.examId === examId);
+
+    if (existingExamIndex !== -1) {
+      // Update existing entry
+      student.submittedExams[existingExamIndex].answers = answers;
+    } else {
+      // Add new entry
+      student.submittedExams.push({ examId, answers });
+    }
+
+    await student.save();
+
+    res.json(student.submittedExams);
   } catch (err) {
     console.error(err);
     handleError(res, "Error submitting Exam!");
@@ -116,4 +128,25 @@ exports.deleteStudent = (req, res) => {
 
     return handleSuccess(res, null, "Student deleted successfully!");
   });
+};
+
+exports.findStudent = async (req, res) => {
+  try {
+    const searchString = req.params.searchString;
+    const searchRegex = new RegExp(searchString, 'i'); // Create a case-insensitive regex from the search string
+
+    // Find students by ID or name using the regex
+    const students = await Student.find({
+      $or: [
+        { _id: { $regex: searchRegex } },
+        { fname: { $regex: searchRegex } },
+        { lname: { $regex: searchRegex } }
+      ]
+    });
+
+    return handleSuccess(res, students, "Students found successfully!");
+  } catch (err) {
+    console.error(err);
+    return handleError(res, "Error finding Student.", 500);
+  }
 };

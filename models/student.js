@@ -28,8 +28,8 @@ const studentSchema = new mongoose.Schema({
     default: [],
   },
   submittedExams: {
-    type: Object,
-    default: {},
+    type: Array,
+    default: [],
   },
 });
 

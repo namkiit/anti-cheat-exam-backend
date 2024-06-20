@@ -84,3 +84,23 @@ exports.deleteQuestion = (req, res) => {
         return handleSuccess(res, null, "Question deleted successfully!");
     });
 };
+
+exports.findQuestion = async (req, res) => {
+    try {
+        const searchString = req.params.searchString;
+        const searchRegex = new RegExp(searchString, 'i'); // Create a case-insensitive regex from the search string
+
+        // Find questions by ID or title using the regex
+        const questions = await Question.find({
+            $or: [
+                { _id: { $regex: searchRegex } },
+                { title: { $regex: searchRegex } }
+            ]
+        });
+
+        return handleSuccess(res, questions, "Questions found successfully!");
+    } catch (err) {
+        console.error(err);
+        return handleError(res, "Error finding Question.", 500);
+    }
+};
