@@ -55,7 +55,7 @@ exports.isAuthenticated = (req, res, next) => {
 
 exports.loginAdmin = (req, res) => {
   const errors = validationResult(req);
-  const { id, password } = req.body;
+  const { email, password } = req.body;
 
   if (!errors.isEmpty()) {
     return res.json({
@@ -63,22 +63,30 @@ exports.loginAdmin = (req, res) => {
     });
   }
 
-  Admin.findById(id, (err, admin) => {
-    if (err) return handleError(res, "Database error, please try again!", 400);
+  Admin.findOne({ email }, (err, admin) => {
+    if (err) {
+      console.log('database error')
+      return handleError(res, "Database error, please try again!", 400);
+    } 
 
-    if (!admin) return handleError(res, "Admin does not exist!", 400);
+    if (!admin) {
+      console.log('Admin does not exist')
+      return handleError(res, "Admin does not exist!", 400);
+    } 
 
-    if (!admin.authenticate(password))
+    if (!admin.authenticate(password)) {
+      console.log('Incorrect username or password')
       return handleError(res, "Incorrect username or password!", 401);
+    }
 
-    const { _id, fullname, email } = admin;
+    const { _id, name, email } = admin;
 
     // TODO: Set expiry to 1d
     const token = jwt.sign({ id: _id }, process.env.JWT_SECRET, {
       algorithm: "HS256",
     });
 
-    return res.json({ id: _id, fullname, email });
+    return res.json({ id: _id, name, email, token });
   });
 };
 

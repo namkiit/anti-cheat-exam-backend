@@ -8,15 +8,9 @@ const adminSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  fname: {
+  name: {
     type: String,
     required: true,
-    maxlength: 32,
-    trim: true,
-  },
-  lname: {
-    type: String,
-    maxlength: 32,
     trim: true,
   },
   password: {
@@ -29,6 +23,12 @@ const adminSchema = new mongoose.Schema({
     trim: true,
   }
 });
+
+adminSchema.methods = {
+  authenticate: function (plainPassword) {
+    return plainPassword === this.password;
+  },
+};
 
 const Admin = mongoose.model("Admin", adminSchema);
 

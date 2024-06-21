@@ -41,8 +41,8 @@ exports.getAssignedExamList = (req, res) => {
         handleError(res, "DB Error, cannot get assigned Exams.");
 
       exams.forEach((_, i) => {
-        exams[i].questions = null;
-        exams[i].answerKeys = null;
+        exams[i].questions = undefined;
+        exams[i].answerKeys = undefined;
         exams[i].status = assignedExams[i].status;
       });
 
@@ -54,7 +54,6 @@ exports.getExam = (req, res) => {
   if (!req.exam) return handleError(res, "Cannot get Exam, DB Error!", 500);
 
   const exam = req.exam;
-  exam.answerKeys = null;
 
   return res.json(exam);
 };
@@ -66,10 +65,6 @@ exports.getAllExams = (req, res) => {
       if (err) {
         return handleError(res, "DB Error, cannot retrieve exams.", 500);
       }
-
-      exams.forEach(exam => {
-        exam.answerKeys = null; // Remove answer keys & questions for security reasons
-      });
 
       return res.json(exams);
     });
