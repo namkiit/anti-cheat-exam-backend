@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-
-// const { ObjectId } = mongoose;
+const { answeredQuestionSchema } = require("./question");
 
 const examSchema = new mongoose.Schema({
   _id: {
@@ -43,6 +42,30 @@ const examSchema = new mongoose.Schema({
   },
 });
 
+const assignedExamSchema = new mongoose.Schema({
+  examId: {
+    type: String,
+    trim: true,
+    required: true,
+  }
+});
+
+const submittedExamSchema = new mongoose.Schema({
+  ...assignedExamSchema.obj,
+  answers: {
+    type: [answeredQuestionSchema],
+    required: true,
+  },
+  score: {
+    type: Number,
+    min: 0,
+    max: 10,
+    default: 0,
+    required: true,
+  }
+});
+
+
 const Exam = mongoose.model("Exam", examSchema);
 
-module.exports = Exam;
+module.exports = { Exam, assignedExamSchema, submittedExamSchema };

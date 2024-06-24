@@ -1,6 +1,6 @@
 const { handleError, handleSuccess } = require("../utils/handleResponse");
-const Exam = require("../models/exam");
-const Question = require("../models/question");
+const { Exam } = require("../models/exam");
+const { Question } = require("../models/question");
 
 
 exports.getExamById = (req, res, next, id) => {
@@ -18,8 +18,19 @@ exports.getExamById = (req, res, next, id) => {
       });
     }))
     .then((questions) => {
-      // All questions are found, attach the exam to the request object and proceed
-      exam.questions = questions;
+      // Function to shuffle an array
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      const shuffledQuestions = shuffleArray(questions);
+
+      // Attach the shuffled questions to the exam and proceed
+      exam.questions = shuffledQuestions;
       req.exam = exam;
       next();
     })
@@ -52,7 +63,6 @@ exports.getAssignedExamList = (req, res) => {
 
       exams.forEach((_, i) => {
         exams[i].questions = undefined;
-        exams[i].answerKeys = undefined;
         exams[i].status = assignedExams.find((assignedExam) => assignedExam.examId.toString() === exams[i]._id.toString()).status;
       });
 

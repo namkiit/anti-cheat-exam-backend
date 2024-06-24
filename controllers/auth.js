@@ -1,4 +1,4 @@
-const { handleError, handleSuccess } = require("../utils/handleResponse");
+const { handleError } = require("../utils/handleResponse");
 const { check, validationResult } = require("express-validator");
 const expressJwt = require("express-jwt");
 const jwt = require("jsonwebtoken");

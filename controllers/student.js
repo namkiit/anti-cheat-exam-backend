@@ -11,7 +11,7 @@ exports.getStudentByID = (req, res, next, id) => {
 
 exports.submitExam = async (req, res) => {
   try {
-    const { examId, answers } = req.body;
+    const { examId, answers, score } = req.body;
     const studentId = req.student._id;
 
     // Remove the assigned exam with the matching examId
@@ -32,9 +32,10 @@ exports.submitExam = async (req, res) => {
     if (existingExamIndex !== -1) {
       // Update existing entry
       student.submittedExams[existingExamIndex].answers = answers;
+      student.submittedExams[existingExamIndex].score = score;
     } else {
       // Add new entry
-      student.submittedExams.push({ examId, answers });
+      student.submittedExams.push({ examId, answers, score });
     }
 
     await student.save();

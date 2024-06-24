@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 
-// const { ObjectId } = mongoose;
-
 const adminSchema = new mongoose.Schema({
   _id: {
     type: String,

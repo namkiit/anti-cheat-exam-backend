@@ -1,4 +1,4 @@
-const Question = require("../models/question");
+const { Question } = require("../models/question");
 const { handleError, handleSuccess } = require("../utils/handleResponse");
 
 exports.getAllQuestions = (req, res) => {

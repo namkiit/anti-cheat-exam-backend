@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-
-const { ObjectId } = mongoose;
+const { assignedExamSchema, submittedExamSchema } = require("./exam");
 
 const studentSchema = new mongoose.Schema({
   _id: {
@@ -24,11 +23,11 @@ const studentSchema = new mongoose.Schema({
     required: true,
   },
   assignedExams: {
-    type: Array,
+    type: [assignedExamSchema],
     default: [],
   },
   submittedExams: {
-    type: Array,
+    type: [submittedExamSchema],
     default: [],
   },
 });
