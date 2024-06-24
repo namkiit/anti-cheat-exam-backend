@@ -1,17 +1,16 @@
 const express = require("express");
-const { check, validationResult } = require("express-validator");
-const { isSignedIn, isAuthenticated } = require("../controllers/auth");
+const { isSignedIn, isAdmin } = require("../controllers/auth");
 
 const router = express.Router();
 
 const { getAllQuestions, createQuestion, updateQuestion, deleteQuestion, findQuestion } = require("../controllers/question");
 
-router.get("/questions", getAllQuestions);
-router.get("/findQuestion/:searchString", findQuestion);
+router.get("/questions", isSignedIn, isAdmin, getAllQuestions);
+router.get("/findQuestion/:searchString", isSignedIn, isAdmin, findQuestion);
 
-router.post('/question/create', createQuestion);
-router.post('/question/update', updateQuestion);
+router.post('/question/create', isSignedIn, isAdmin, createQuestion);
+router.post('/question/update', isSignedIn, isAdmin, updateQuestion);
 
-router.delete('/question/:id', deleteQuestion);
+router.delete('/question/:id', isSignedIn, isAdmin, deleteQuestion);
 
 module.exports = router;

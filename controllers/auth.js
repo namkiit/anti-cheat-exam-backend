@@ -90,15 +90,22 @@ exports.loginAdmin = (req, res) => {
   });
 };
 
-exports.isAdmin = (req, res, next) => {
-  // Consistent "id"
+exports.isAdmin = async (req, res, next) => {
+  try {
+    if (!req.auth || !req.auth.id) {
+      return handleError(res, "Access denied, please login with admin account!", 403);
+    }
 
-  const isAdmin =
-    req.admin && req.auth && req.admin._id === req.auth.id;
+    const admin = await Admin.findById(req.auth.id);
 
-  if (!isAdmin) {
-    return handleError(res, "Access denied, please login with admin account!", 403);
+    if (!admin) {
+      return handleError(res, "Access denied, please login with admin account!", 403);
+    }
+
+    req.admin = admin;
+    next();
+  } catch (err) {
+    console.error(err);
+    return handleError(res, "Server error", 500);
   }
-
-  next();
 };

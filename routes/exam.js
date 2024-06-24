@@ -1,5 +1,4 @@
 const express = require("express");
-const { check, validationResult } = require("express-validator");
 const { isSignedIn, isAuthenticated, isAdmin } = require("../controllers/auth");
 
 const router = express.Router();
@@ -29,13 +28,11 @@ router.get(
   getAssignedExamList
 );
 
-router.get("/exams", getAllExams)
-router.get('/exams/:examId/', getExam)
-
-// TODO: Add isAdmin middleware
-router.get("/findExam/:searchString", findExam);
-router.post("/exam/create", createExam);
-router.post("/exam/update", updateExam);
-router.delete("/exam/:id", deleteExam);
+router.get("/exams", isSignedIn, isAdmin, getAllExams)
+router.get('/exams/:examId/', isSignedIn, isAdmin, getExam)
+router.get("/findExam/:searchString", isSignedIn, isAdmin, findExam);
+router.post("/exam/create", isSignedIn, isAdmin, createExam);
+router.post("/exam/update", isSignedIn, isAdmin, updateExam);
+router.delete("/exam/:id", isSignedIn, isAdmin, deleteExam);
 
 module.exports = router;

@@ -1,6 +1,5 @@
 const express = require("express");
-const { check, validationResult } = require("express-validator");
-const { isSignedIn, isAuthenticated } = require("../controllers/auth");
+const { isSignedIn, isAuthenticated, isAdmin } = require("../controllers/auth");
 
 const router = express.Router();
 
@@ -9,12 +8,12 @@ const { getStudentByID, submitExam, getAllStudents, createStudent, updateStudent
 router.param("studentId", getStudentByID);
 router.post("/submitExam/:studentId", isSignedIn, isAuthenticated, submitExam);
 
-router.get("/students", getAllStudents);
-router.get("/findStudent/:searchString", findStudent);
+router.get("/students", isSignedIn, isAdmin, getAllStudents);
+router.get("/findStudent/:searchString", isSignedIn, isAdmin, findStudent);
 
-router.post('/student/create', createStudent);
-router.post('/student/update', updateStudent);
+router.post('/student/create', isSignedIn, isAdmin, createStudent);
+router.post('/student/update', isSignedIn, isAdmin, updateStudent);
 
-router.delete('/student/:id', deleteStudent);
+router.delete('/student/:id', isSignedIn, isAdmin, deleteStudent);
 
 module.exports = router;

@@ -20,20 +20,29 @@ exports.createQuestion = (req, res) => {
         return handleError(res, "Not receiving required fields in payload.", 400);
     }
 
-    const newQuestion = new Question({
-        _id,
-        title,
-        type,
-        answers,
-        correctAnswer
-    });
-
-    newQuestion.save((err, question) => {
+    Question.findById(_id, (err, existingQuestion) => {
         if (err) {
-            return handleError(res, "Error creating Question, please try again.", 400);
+            return handleError(res, "DB Error while checking existing question.", 500);
+        }
+        if (existingQuestion) {
+            return handleError(res, "A question with this ID already exists.", 400);
         }
 
-        return handleSuccess(res, question, "Question created successfully!");
+        const newQuestion = new Question({
+            _id,
+            title,
+            type,
+            answers,
+            correctAnswer
+        });
+
+        newQuestion.save((err, question) => {
+            if (err) {
+                return handleError(res, "Error creating Question, please try again later.", 500);
+            }
+
+            return handleSuccess(res, question, "Question created successfully!");
+        });
     });
 };
 
@@ -54,7 +63,7 @@ exports.updateQuestion = (req, res) => {
 
     Question.findByIdAndUpdate(_id, updatedData, { new: true }, (err, question) => {
         if (err) {
-            return handleError(res, "Error updating Question, please try again.", 400);
+            return handleError(res, "Error updating Question, please try again later.", 400);
         }
 
         if (!question) {
@@ -74,7 +83,7 @@ exports.deleteQuestion = (req, res) => {
 
     Question.findByIdAndDelete(_id, (err, question) => {
         if (err) {
-            return handleError(res, "Error deleting Question, please try again.", 400);
+            return handleError(res, "Error deleting Question, please try again later.", 400);
         }
 
         if (!question) {

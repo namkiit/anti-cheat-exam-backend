@@ -65,21 +65,30 @@ exports.createStudent = (req, res) => {
     return handleError(res, "ID, First Name, and Password are required fields.", 400);
   }
 
-  const newStudent = new Student({
-    _id,
-    fname,
-    lname,
-    password,
-    assignedExams,
-    submittedExams: []
-  });
-
-  newStudent.save((err, student) => {
+  Student.findById(_id, (err, existingStudent) => {
     if (err) {
-      return handleError(res, "Error creating Student, please try again.", 400);
+      return handleError(res, "DB Error while checking existing student.", 500);
+    }
+    if (existingStudent) {
+      return handleError(res, "A student with this ID already exists.", 400);
     }
 
-    return handleSuccess(res, student, "Student created successfully!");
+    const newStudent = new Student({
+      _id,
+      fname,
+      lname,
+      password,
+      assignedExams,
+      submittedExams: []
+    });
+
+    newStudent.save((err, student) => {
+      if (err) {
+        return handleError(res, "Error creating Student, please try again later.", 500);
+      }
+
+      return handleSuccess(res, student, "Student created successfully!");
+    });
   });
 };
 
@@ -99,7 +108,7 @@ exports.updateStudent = (req, res) => {
 
   Student.findByIdAndUpdate(_id, updatedData, { new: true }, (err, student) => {
     if (err) {
-      return handleError(res, "Error updating Student, please try again.", 400);
+      return handleError(res, "Error updating Student, please try again later.", 400);
     }
 
     if (!student) {
@@ -119,7 +128,7 @@ exports.deleteStudent = (req, res) => {
 
   Student.findByIdAndDelete(_id, (err, student) => {
     if (err) {
-      return handleError(res, "Error deleting Student, please try again.", 400);
+      return handleError(res, "Error deleting Student, please try again later.", 400);
     }
 
     if (!student) {

@@ -33,17 +33,27 @@ exports.getExamById = (req, res, next, id) => {
 exports.getAssignedExamList = (req, res) => {
   const assignedExams = req.student.assignedExams;
   const assignedExamIds = assignedExams.map((exam) => exam.examId);
+  const now = new Date();
 
-  Exam.find({ _id: { $in: assignedExamIds } })
+  Exam.find({
+    _id: { $in: assignedExamIds },
+    status: "open"
+  })
     .lean()
     .exec((err, exams) => {
-      if (err || !exams)
-        handleError(res, "DB Error, cannot get assigned Exams.");
+      if (err || !exams) return handleError(res, "DB Error, cannot get assigned Exams.", 500);
+
+      exams = exams.filter((exam) => {
+        const startDate = new Date(exam.startDate); // Convert startDate string to Date object
+        const endDate = new Date(exam.endDate);     // Convert endDate string to Date object
+
+        return startDate && endDate && now >= startDate && now <= endDate;
+      });
 
       exams.forEach((_, i) => {
         exams[i].questions = undefined;
         exams[i].answerKeys = undefined;
-        exams[i].status = assignedExams[i].status;
+        exams[i].status = assignedExams.find((assignedExam) => assignedExam.examId.toString() === exams[i]._id.toString()).status;
       });
 
       return res.json({ exams });
@@ -77,22 +87,31 @@ exports.createExam = (req, res) => {
     return handleError(res, "Questions must be a non-empty array.", 400);
   }
 
-  const newExam = new Exam({
-    _id,
-    name,
-    startDate,
-    endDate,
-    duration,
-    status,
-    questions,
-    questionCount: questions.length
-  });
-
-  newExam.save((err, exam) => {
+  Exam.findById(_id, (err, existingExam) => {
     if (err) {
-      return handleError(res, "Failed to create exam, DB Error.", 500);
+      return handleError(res, "DB Error while checking existing exam.", 500);
     }
-    return handleSuccess(res, "Exam created successfully!", 201, exam);
+    if (existingExam) {
+      return handleError(res, "An exam with this ID already exists.", 400);
+    }
+
+    const newExam = new Exam({
+      _id,
+      name,
+      startDate,
+      endDate,
+      duration,
+      status,
+      questions,
+      questionCount: questions.length
+    });
+
+    newExam.save((err, exam) => {
+      if (err) {
+        return handleError(res, "Error creating Exam, please try again later.", 500);
+      }
+      return handleSuccess(res, exam, "Exam created successfully!");
+    });
   });
 };
 
@@ -112,7 +131,7 @@ exports.updateExam = (req, res) => {
     if (!exam) {
       return handleError(res, "Exam not found.", 404);
     }
-    return handleSuccess(res, "Exam updated successfully!", 200, exam);
+    return handleSuccess(res, exam, "Exam updated successfully!");
   });
 };
 
@@ -127,7 +146,7 @@ exports.deleteExam = (req, res) => {
     if (!exam) {
       return handleError(res, "Exam not found.", 404);
     }
-    return handleSuccess(res, "Exam deleted successfully!", 200, exam);
+    return handleSuccess(res, exam, "Exam deleted successfully!");
   });
 };
 
