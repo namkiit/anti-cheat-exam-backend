@@ -27,7 +27,7 @@ exports.submitExam = async (req, res) => {
     if (existingExamIndex !== -1) {
       // Update existing entry
       student.submittedExams[existingExamIndex].answers = answers;
-      student.submittedExams[existingExamIndex].credibilityScore = credibilityScore;
+      student.submittedExams[existingExamIndex].score = score;
       student.submittedExams[existingExamIndex].credibilityScore = credibilityScore;
     } else {
       // Add new entry

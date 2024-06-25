@@ -34,6 +34,10 @@ const answeredQuestionSchema = new mongoose.Schema({
     type: String,
     trim: true,
     required: true,
+  },
+  isCorrect: {
+    type: Boolean,
+    required: true,
   }
 }, { _id: false });
 
