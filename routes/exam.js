@@ -8,6 +8,7 @@ const {
   getExam,
   getAllExams,
   getAssignedExamList,
+  getSubmittedExamList,
   createExam,
   updateExam,
   deleteExam,
@@ -26,6 +27,13 @@ router.get(
   isSignedIn,
   isAuthenticated,
   getAssignedExamList
+);
+
+router.get(
+  "/:studentId/submittedExams/all",
+  isSignedIn,
+  isAuthenticated,
+  getSubmittedExamList
 );
 
 router.get("/exams", isSignedIn, isAdmin, getAllExams)

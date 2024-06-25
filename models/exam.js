@@ -48,7 +48,7 @@ const assignedExamSchema = new mongoose.Schema({
     trim: true,
     required: true,
   }
-});
+}, { _id: false });
 
 const submittedExamSchema = new mongoose.Schema({
   ...assignedExamSchema.obj,
@@ -62,8 +62,15 @@ const submittedExamSchema = new mongoose.Schema({
     max: 10,
     default: 0,
     required: true,
+  },
+  credibilityScore: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 100,
+    required: true,
   }
-});
+}, { _id: false });
 
 
 const Exam = mongoose.model("Exam", examSchema);

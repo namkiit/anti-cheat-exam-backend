@@ -35,7 +35,7 @@ const answeredQuestionSchema = new mongoose.Schema({
     trim: true,
     required: true,
   }
-})
+}, { _id: false });
 
 const Question = mongoose.model("Question", QuestionSchema);
 

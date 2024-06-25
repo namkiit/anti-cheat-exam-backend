@@ -2,7 +2,6 @@ const { handleError, handleSuccess } = require("../utils/handleResponse");
 const { Exam } = require("../models/exam");
 const { Question } = require("../models/question");
 
-
 exports.getExamById = (req, res, next, id) => {
   Exam.findById(id, (err, exam) => {
     if (err) return handleError(res, "Database error, please try again!", 400);
@@ -67,6 +66,42 @@ exports.getAssignedExamList = (req, res) => {
       });
 
       return res.json({ exams });
+    });
+};
+
+exports.getSubmittedExamList = (req, res) => {
+  const submittedExams = req.student.submittedExams;
+  const submittedExamIds = submittedExams.map((exam) => exam.examId);
+
+  Exam.find({
+    _id: { $in: submittedExamIds },
+  })
+    .lean()
+    .exec((err, exams) => {
+      if (err || !exams) return handleError(res, "DB Error, cannot get submitted Exams.", 500);
+
+      const now = new Date();
+
+      const submittedExamList = exams.map((exam) => {
+        const submittedExam = submittedExams.find((subExam) => subExam.examId.toString() === exam._id.toString());
+        
+        // Convert startDate and endDate to Date objects
+        const startDate = new Date(exam.startDate);
+        const endDate = new Date(exam.endDate);
+
+        return {
+          examId: exam._id,
+          title: exam.name,
+          startDate: startDate,
+          endDate: endDate,
+          questionCount: exam.questionCount,
+          duration: exam.duration,
+          score: submittedExam.score,
+          credibilityScore: submittedExam.credibilityScore,
+        };
+      });
+
+      return res.json({ exams: submittedExamList });
     });
 };
 
