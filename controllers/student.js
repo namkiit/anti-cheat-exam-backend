@@ -62,29 +62,39 @@ exports.createStudent = (req, res) => {
     return handleError(res, "ID, First Name, and Password are required fields.", 400);
   }
 
-  Student.findById(_id, (err, existingStudent) => {
+  // Check if all exam IDs exist
+  Exam.find({ _id: { $in: assignedExams } }, (err, foundExams) => {
     if (err) {
-      return handleError(res, "DB Error while checking existing student.", 500);
+      return handleError(res, "DB Error while checking exams.", 500);
     }
-    if (existingStudent) {
-      return handleError(res, "A student with this ID already exists.", 400);
+    if (foundExams.length !== assignedExams.length) {
+      return handleError(res, "Some exam IDs are invalid.", 400);
     }
 
-    const newStudent = new Student({
-      _id,
-      fname,
-      lname,
-      password,
-      assignedExams,
-      submittedExams: []
-    });
-
-    newStudent.save((err, student) => {
+    Student.findById(_id, (err, existingStudent) => {
       if (err) {
-        return handleError(res, "Error creating Student, please try again later.", 500);
+        return handleError(res, "DB Error while checking existing student.", 500);
+      }
+      if (existingStudent) {
+        return handleError(res, "A student with this ID already exists.", 400);
       }
 
-      return handleSuccess(res, student, "Student created successfully!");
+      const newStudent = new Student({
+        _id,
+        fname,
+        lname,
+        password,
+        assignedExams,
+        submittedExams: []
+      });
+
+      newStudent.save((err, student) => {
+        if (err) {
+          return handleError(res, "Error creating Student, please try again later.", 500);
+        }
+
+        return handleSuccess(res, student, "Student created successfully!");
+      });
     });
   });
 };
@@ -96,24 +106,39 @@ exports.updateStudent = (req, res) => {
     return handleError(res, "ID, First Name, and Password are required fields.", 400);
   }
 
-  const updatedData = {
-    fname,
-    lname,
-    password,
-    assignedExams
+  const updatedData = { fname, lname, password };
+
+  const updateStudent = () => {
+    if (assignedExams && Array.isArray(assignedExams)) {
+      updatedData.assignedExams = assignedExams;
+    }
+
+    Student.findByIdAndUpdate(_id, updatedData, { new: true }, (err, student) => {
+      if (err) {
+        return handleError(res, "Error updating Student, please try again later.", 400);
+      }
+
+      if (!student) {
+        return handleError(res, "Student not found.", 404);
+      }
+
+      return handleSuccess(res, student, "Student updated successfully!");
+    });
   };
 
-  Student.findByIdAndUpdate(_id, updatedData, { new: true }, (err, student) => {
-    if (err) {
-      return handleError(res, "Error updating Student, please try again later.", 400);
-    }
-
-    if (!student) {
-      return handleError(res, "Student not found.", 404);
-    }
-
-    return handleSuccess(res, student, "Student updated successfully!");
-  });
+  if (assignedExams && Array.isArray(assignedExams)) {
+    Exam.find({ _id: { $in: assignedExams } }, (err, foundExams) => {
+      if (err) {
+        return handleError(res, "DB Error while checking exams.", 500);
+      }
+      if (foundExams.length !== assignedExams.length) {
+        return handleError(res, "Some exam IDs are invalid.", 400);
+      }
+      updateStudent();
+    });
+  } else {
+    updateStudent();
+  }
 };
 
 exports.deleteStudent = (req, res) => {
