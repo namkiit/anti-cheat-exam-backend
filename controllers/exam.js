@@ -128,19 +128,7 @@ exports.getAllExams = (req, res) => {
 exports.createExam = (req, res) => {
   const { _id, name, startDate, endDate, duration, status, questions } = req.body;
 
-  if (!questions || !Array.isArray(questions) || questions.length === 0) {
-    return handleError(res, "Questions must be a non-empty array.", 400);
-  }
-
-  // Check if all question IDs exist
-  Question.find({ _id: { $in: questions } }, (err, foundQuestions) => {
-    if (err) {
-      return handleError(res, "DB Error while checking questions.", 500);
-    }
-    if (foundQuestions.length !== questions.length) {
-      return handleError(res, "Some question IDs are invalid.", 400);
-    }
-
+  const createNewExam = () => {
     Exam.findById(_id, (err, existingExam) => {
       if (err) {
         return handleError(res, "DB Error while checking existing exam.", 500);
@@ -156,8 +144,8 @@ exports.createExam = (req, res) => {
         endDate,
         duration,
         status,
-        questions,
-        questionCount: questions.length
+        questions: questions || [],
+        questionCount: (questions && questions.length) || 0,
       });
 
       newExam.save((err, exam) => {
@@ -167,7 +155,21 @@ exports.createExam = (req, res) => {
         return handleSuccess(res, exam, "Exam created successfully!");
       });
     });
-  });
+  };
+
+  if (questions && Array.isArray(questions) && questions.length > 0) {
+    Question.find({ _id: { $in: questions } }, (err, foundQuestions) => {
+      if (err) {
+        return handleError(res, "DB Error while checking questions.", 500);
+      }
+      if (foundQuestions.length !== questions.length) {
+        return handleError(res, "Some question IDs are invalid.", 400);
+      }
+      createNewExam();
+    });
+  } else {
+    createNewExam();
+  }
 };
 
 exports.updateExam = (req, res) => {
@@ -175,7 +177,7 @@ exports.updateExam = (req, res) => {
 
   const updateFields = { name, startDate, endDate, duration, status };
 
-  const updateExam = () => {
+  const updateExistingExam = () => {
     Exam.findByIdAndUpdate(_id, { $set: updateFields }, { new: true }, (err, exam) => {
       if (err) {
         return handleError(res, "Failed to update exam, DB Error.", 500);
@@ -197,10 +199,12 @@ exports.updateExam = (req, res) => {
       }
       updateFields.questions = questions;
       updateFields.questionCount = questions.length;
-      updateExam();
+      updateExistingExam();
     });
   } else {
-    updateExam();
+    updateFields.questions = [];
+    updateFields.questionCount = 0;
+    updateExistingExam();
   }
 };
 
