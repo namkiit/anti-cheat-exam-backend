@@ -32,7 +32,7 @@ const examSchema = new mongoose.Schema({
     enum: ["open", "closed"],
   },
   questions: {
-    type: Array,
+    type: [String],
     required: true,
   },
   questionCount: {
