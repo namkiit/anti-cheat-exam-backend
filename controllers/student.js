@@ -1,5 +1,6 @@
 const { handleError, handleSuccess } = require("../utils/handleResponse");
 const Student = require("../models/student");
+const { Exam } = require("../models/exam");
 
 exports.getStudentByID = (req, res, next, id) => {
   Student.findById(id, (err, student) => {
