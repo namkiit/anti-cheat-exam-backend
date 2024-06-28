@@ -63,12 +63,16 @@ exports.createStudent = (req, res) => {
     return handleError(res, "ID, First Name, and Password are required fields.", 400);
   }
 
+  // Extract exam IDs from assignedExams
+  const examIds = assignedExams.map(exam => exam.examId);
+
   // Check if all exam IDs exist
-  Exam.find({ _id: { $in: assignedExams } }, (err, foundExams) => {
+  Exam.find({ _id: { $in: examIds } }, (err, foundExams) => {
     if (err) {
+      console.log(err);
       return handleError(res, "DB Error while checking exams.", 500);
     }
-    if (foundExams.length !== assignedExams.length) {
+    if (foundExams.length !== examIds.length) {
       return handleError(res, "Some exam IDs are invalid.", 400);
     }
 
@@ -128,11 +132,14 @@ exports.updateStudent = (req, res) => {
   };
 
   if (assignedExams && Array.isArray(assignedExams)) {
-    Exam.find({ _id: { $in: assignedExams } }, (err, foundExams) => {
+    // Extract exam IDs from assignedExams
+    const examIds = assignedExams.map(exam => exam.examId);
+
+    Exam.find({ _id: { $in: examIds } }, (err, foundExams) => {
       if (err) {
         return handleError(res, "DB Error while checking exams.", 500);
       }
-      if (foundExams.length !== assignedExams.length) {
+      if (foundExams.length !== examIds.length) {
         return handleError(res, "Some exam IDs are invalid.", 400);
       }
       updateStudent();
