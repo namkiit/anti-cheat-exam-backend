@@ -128,58 +128,85 @@ exports.getAllExams = (req, res) => {
 exports.createExam = (req, res) => {
   const { _id, name, startDate, endDate, duration, status, questions } = req.body;
 
-  if (!questions || !Array.isArray(questions) || questions.length === 0) {
-    return handleError(res, "Questions must be a non-empty array.", 400);
-  }
-
-  Exam.findById(_id, (err, existingExam) => {
-    if (err) {
-      return handleError(res, "DB Error while checking existing exam.", 500);
-    }
-    if (existingExam) {
-      return handleError(res, "An exam with this ID already exists.", 400);
-    }
-
-    const newExam = new Exam({
-      _id,
-      name,
-      startDate,
-      endDate,
-      duration,
-      status,
-      questions,
-      questionCount: questions.length
-    });
-
-    newExam.save((err, exam) => {
+  const createNewExam = () => {
+    Exam.findById(_id, (err, existingExam) => {
       if (err) {
-        return handleError(res, "Error creating Exam, please try again later.", 500);
+        return handleError(res, "DB Error while checking existing exam.", 500);
       }
-      return handleSuccess(res, exam, "Exam created successfully!");
+      if (existingExam) {
+        return handleError(res, "An exam with this ID already exists.", 400);
+      }
+
+      const newExam = new Exam({
+        _id,
+        name,
+        startDate,
+        endDate,
+        duration,
+        status,
+        questions: questions || [],
+        questionCount: (questions && questions.length) || 0,
+      });
+
+      newExam.save((err, exam) => {
+        if (err) {
+          return handleError(res, "Error creating Exam, please try again later.", 500);
+        }
+        return handleSuccess(res, exam, "Exam created successfully!");
+      });
     });
-  });
+  };
+
+  if (questions && Array.isArray(questions) && questions.length > 0) {
+    Question.find({ _id: { $in: questions } }, (err, foundQuestions) => {
+      if (err) {
+        return handleError(res, "DB Error while checking questions.", 500);
+      }
+      if (foundQuestions.length !== questions.length) {
+        return handleError(res, "Some question IDs are invalid.", 400);
+      }
+      createNewExam();
+    });
+  } else {
+    createNewExam();
+  }
 };
 
 exports.updateExam = (req, res) => {
   const { _id, name, startDate, endDate, duration, status, questions } = req.body;
 
   const updateFields = { name, startDate, endDate, duration, status };
+
+  const updateExistingExam = () => {
+    Exam.findByIdAndUpdate(_id, { $set: updateFields }, { new: true }, (err, exam) => {
+      if (err) {
+        return handleError(res, "Failed to update exam, DB Error.", 500);
+      }
+      if (!exam) {
+        return handleError(res, "Exam not found.", 404);
+      }
+      return handleSuccess(res, exam, "Exam updated successfully!");
+    });
+  };
+
   if (questions && Array.isArray(questions)) {
-    updateFields.questions = questions;
-    updateFields.questionCount = questions.length;
+    Question.find({ _id: { $in: questions } }, (err, foundQuestions) => {
+      if (err) {
+        return handleError(res, "DB Error while checking questions.", 500);
+      }
+      if (foundQuestions.length !== questions.length) {
+        return handleError(res, "Some question IDs are invalid.", 400);
+      }
+      updateFields.questions = questions;
+      updateFields.questionCount = questions.length;
+      updateExistingExam();
+    });
+  } else {
+    updateFields.questions = [];
+    updateFields.questionCount = 0;
+    updateExistingExam();
   }
-
-  Exam.findByIdAndUpdate(_id, { $set: updateFields }, { new: true }, (err, exam) => {
-    if (err) {
-      return handleError(res, "Failed to update exam, DB Error.", 500);
-    }
-    if (!exam) {
-      return handleError(res, "Exam not found.", 404);
-    }
-    return handleSuccess(res, exam, "Exam updated successfully!");
-  });
 };
-
 
 exports.deleteExam = (req, res) => {
   const _id = req.params.id;
