@@ -150,6 +150,7 @@ exports.createExam = (req, res) => {
 
       newExam.save((err, exam) => {
         if (err) {
+          console.log(err)
           return handleError(res, "Error creating Exam, please try again later.", 500);
         }
         return handleSuccess(res, exam, "Exam created successfully!");

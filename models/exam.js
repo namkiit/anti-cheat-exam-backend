@@ -11,7 +11,6 @@ const examSchema = new mongoose.Schema({
     type: String,
     trim: true,
     required: true,
-    maxlength: 16,
   },
   startDate: {
     type: String,

@@ -10,12 +10,10 @@ const studentSchema = new mongoose.Schema({
   fname: {
     type: String,
     required: true,
-    maxlength: 32,
     trim: true,
   },
   lname: {
     type: String,
-    maxlength: 32,
     trim: true,
   },
   password: {
