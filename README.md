@@ -14,8 +14,6 @@ This is the my upgraded version of Prathamesh Mutkure's [Anti-Cheat Exam Web App
 
 <img  src="https://user-images.githubusercontent.com/28570857/178106216-25d91b1c-06cf-42fa-85fc-cf3540868b1f.png"/>
 
-</p>
-
 1. Home Page   <a id="home"> </a>
 
    - [Landing Page](https://anti-cheat-exam-app.vercel.app/) which lists all the features of the app
